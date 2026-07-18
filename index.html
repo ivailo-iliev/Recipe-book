@@ -84,6 +84,25 @@
       line-height: 1.6;
     }
 
+    .top-previews {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin: 0 0 2rem;
+    }
+
+    .top-preview {
+      margin: 0;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(180, 95, 54, 0.18);
+      border-radius: 1.1rem;
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: 0 10px 24px rgba(78, 46, 27, 0.08);
+      font-size: clamp(1.8rem, 4vw, 3.25rem);
+      line-height: 1.1;
+      text-align: center;
+    }
+
     .showcase {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -167,6 +186,13 @@
       <h1>Български шрифтове</h1>
       <p class="intro">test deploy2 Тази страница показва Great Vibes от Google Fonts като първа опция, зарежда Karina Cyrillic и Bulgarian Kursiv директно от TTF файловете, а Civil Manuscript остава вграден за лесно показване в GitHub Pages.</p>
     </header>
+
+    <section class="top-previews" aria-label="Preview text by font">
+      <p class="top-preview great-vibes">Рецептите на баба Ани</p>
+      <p class="top-preview bulgarian-kursiv">Рецептите на баба Ани</p>
+      <p class="top-preview civil-manuscript">Рецептите на баба Ани</p>
+      <p class="top-preview karina-cyrillic">Рецептите на баба Ани</p>
+    </section>
 
     <section class="showcase" aria-label="Font samples">
       <article class="font-card">
