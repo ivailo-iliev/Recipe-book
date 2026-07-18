@@ -8,6 +8,7 @@ from pathlib import Path
 
 from fontTools.subset import Options, Subsetter
 from fontTools.ttLib import TTFont, newTable
+from fontTools.ttLib.tables._c_m_a_p import CmapSubtable
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -55,12 +56,58 @@ def build_name_table(config: dict[str, object]):
     }
 
     for name_id, value in names.items():
-        # Windows Unicode and Macintosh Roman records improve compatibility
-        # across CoreText/WebKit and other browser font stacks.
         table.setName(value, name_id, 3, 1, 0x0409)
         table.setName(value, name_id, 1, 0, 0)
 
     return table
+
+
+def rebuild_unicode_cmap(font: TTFont) -> None:
+    """Convert the fonts' legacy Windows-1251 byte map to real Unicode."""
+    legacy_map: dict[int, str] = {}
+
+    for table in font["cmap"].tables:
+        for codepoint, glyph_name in table.cmap.items():
+            if 0 <= codepoint <= 0xFF:
+                legacy_map.setdefault(codepoint, glyph_name)
+
+    if not legacy_map:
+        raise RuntimeError("The source font does not contain a legacy byte cmap")
+
+    # Preserve ASCII directly. Decode every upper byte through Windows-1251,
+    # which is how these 1990s fonts stored their Cyrillic outlines.
+    unicode_map = {
+        codepoint: glyph_name
+        for codepoint, glyph_name in legacy_map.items()
+        if codepoint < 0x80
+    }
+
+    for byte_value, glyph_name in legacy_map.items():
+        if byte_value < 0x80:
+            continue
+
+        try:
+            character = bytes([byte_value]).decode("cp1251")
+        except UnicodeDecodeError:
+            continue
+
+        unicode_map[ord(character)] = glyph_name
+
+    cmap = newTable("cmap")
+    cmap.tableVersion = 0
+    cmap.tables = []
+
+    # Unicode BMP plus Windows Unicode BMP. Supplying both makes CoreText,
+    # WebKit, and other browser font stacks choose a standards-based cmap.
+    for platform_id, encoding_id in ((0, 3), (3, 1)):
+        subtable = CmapSubtable.newSubtable(4)
+        subtable.platformID = platform_id
+        subtable.platEncID = encoding_id
+        subtable.language = 0
+        subtable.cmap = dict(sorted(unicode_map.items()))
+        cmap.tables.append(subtable)
+
+    font["cmap"] = cmap
 
 
 def repair_font(config: dict[str, object]) -> None:
@@ -73,18 +120,16 @@ def repair_font(config: dict[str, object]) -> None:
 
     font = TTFont(
         source,
-        lazy=True,
+        lazy=False,
         checkChecksums=0,
         recalcBBoxes=False,
         recalcTimestamp=False,
         ignoreDecompileErrors=True,
     )
 
-    # Replace the malformed legacy name table instead of preserving it.
+    rebuild_unicode_cmap(font)
     font["name"] = build_name_table(config)
 
-    # Remove signatures and legacy bitmap/device-metric tables that are not
-    # needed on the web and can trigger stricter font sanitizers.
     for tag in ("DSIG", "LTSH", "VDMX", "hdmx"):
         if tag in font:
             del font[tag]
@@ -106,9 +151,6 @@ def repair_font(config: dict[str, object]) -> None:
     if italic and "post" in font and font["post"].italicAngle == 0:
         font["post"].italicAngle = -12
 
-    # Rebuild every glyph while stripping obsolete TrueType hinting programs.
-    # This gives Safari/CoreText a clean, modernized set of tables rather than
-    # simply wrapping the original malformed binary in WOFF2.
     options = Options()
     options.hinting = False
     options.recalc_bounds = True
@@ -129,7 +171,6 @@ def repair_font(config: dict[str, object]) -> None:
     font.save(output, reorderTables=True)
     font.close()
 
-    # Validate the generated file by reopening and fully decompiling it.
     with TTFont(output, checkChecksums=2, lazy=False) as repaired:
         required_tables = {"cmap", "glyf", "head", "hhea", "hmtx", "maxp", "name"}
         missing = sorted(required_tables.difference(repaired.keys()))
@@ -166,15 +207,21 @@ def update_html() -> None:
 
     for old, new in replacements.items():
         if old not in html:
+            # The script is intentionally idempotent after the first conversion.
+            if new.split("\n", 1)[0] in html:
+                continue
             raise RuntimeError(f"Expected CSS declaration not found: {old}")
         html = html.replace(old, new, 1)
 
-    html = re.sub(
-        r'(\.bulgarian-kursiv\s*\{\s*font-family:\s*"Bulgarian Kursiv",\s*Georgia,\s*serif;)(\s*\})',
-        r"\1\n      font-style: italic;\2",
-        html,
-        count=1,
-    )
+    if "font-style: italic;" not in re.search(
+        r'\.bulgarian-kursiv\s*\{[^}]*\}', html, flags=re.DOTALL
+    ).group(0):
+        html = re.sub(
+            r'(\.bulgarian-kursiv\s*\{\s*font-family:\s*"Bulgarian Kursiv",\s*Georgia,\s*serif;)(\s*\})',
+            r"\1\n      font-style: italic;\2",
+            html,
+            count=1,
+        )
 
     path.write_text(html, encoding="utf-8")
     print("Updated index.html to use repaired WOFF2 files")
