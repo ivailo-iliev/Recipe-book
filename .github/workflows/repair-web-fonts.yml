@@ -9,6 +9,9 @@ on:
       - karina-cyrillic.ttf
       - tools/repair_web_fonts.py
       - .github/workflows/repair-web-fonts.yml
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
