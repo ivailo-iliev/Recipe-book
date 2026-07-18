@@ -84,6 +84,35 @@
       line-height: 1.6;
     }
 
+
+    .feature-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.65rem;
+      margin: 0 0 1.25rem;
+    }
+
+    .feature-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid rgba(180, 95, 54, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 8px 18px rgba(78, 46, 27, 0.07);
+      color: var(--muted);
+      font: 700 0.78rem/1.2 system-ui, sans-serif;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .feature-toggle input {
+      accent-color: var(--accent);
+    }
+
     .top-previews {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -101,6 +130,9 @@
       font-size: clamp(1.8rem, 4vw, 3.25rem);
       line-height: 1.1;
       text-align: center;
+      font-feature-settings: var(--preview-features, normal);
+      font-variant-ligatures: common-ligatures discretionary-ligatures;
+      font-kerning: normal;
     }
 
     .showcase {
@@ -187,6 +219,16 @@
       <p class="intro">test deploy2 Тази страница показва Great Vibes от Google Fonts като първа опция, зарежда Karina Cyrillic и Bulgarian Kursiv директно от TTF файловете, а Civil Manuscript остава вграден за лесно показване в GitHub Pages.</p>
     </header>
 
+    <form class="feature-controls" aria-label="OpenType feature controls">
+      <label class="feature-toggle"><input type="checkbox" data-feature="liga" checked> Ligatures</label>
+      <label class="feature-toggle"><input type="checkbox" data-feature="dlig"> Discretionary ligatures</label>
+      <label class="feature-toggle"><input type="checkbox" data-feature="kern" checked> Kerning</label>
+      <label class="feature-toggle"><input type="checkbox" data-feature="swsh"> Swashes</label>
+      <label class="feature-toggle"><input type="checkbox" data-feature="salt"> Alternates</label>
+      <label class="feature-toggle"><input type="checkbox" data-feature="ss01"> Stylistic set 1</label>
+      <label class="feature-toggle"><input type="checkbox" data-feature="ss02"> Stylistic set 2</label>
+    </form>
+
     <section class="top-previews" aria-label="Preview text by font">
       <p class="top-preview great-vibes">Рецептите на баба Ани</p>
       <p class="top-preview bulgarian-kursiv">Рецептите на баба Ани</p>
@@ -220,5 +262,21 @@
       </article>
     </section>
   </main>
+  <script>
+    const featureControls = document.querySelectorAll('[data-feature]');
+    const updatePreviewFeatures = () => {
+      const settings = Array.from(featureControls)
+        .map((control) => `"${control.dataset.feature}" ${control.checked ? 1 : 0}`)
+        .join(', ');
+
+      document.documentElement.style.setProperty('--preview-features', settings || 'normal');
+    };
+
+    featureControls.forEach((control) => {
+      control.addEventListener('change', updatePreviewFeatures);
+    });
+
+    updatePreviewFeatures();
+  </script>
 </body>
 </html>
