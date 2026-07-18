@@ -26,6 +26,18 @@
       font-display: swap;
     }
 
+    @font-face {
+      font-family: "Russkopis Normalny";
+      src: url("Russkopis-Normalny.otf") format("opentype");
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Russkopis Zhirny";
+      src: url("Russkopis-Zhirny.otf") format("opentype");
+      font-display: swap;
+    }
+
     :root {
       color-scheme: light;
       --bg: #fff8ef;
@@ -209,6 +221,14 @@
     .karina-cyrillic {
       font-family: "Karina Cyrillic", Georgia, serif;
     }
+
+    .russkopis-normalny {
+      font-family: "Russkopis Normalny", Georgia, serif;
+    }
+
+    .russkopis-zhirny {
+      font-family: "Russkopis Zhirny", Georgia, serif;
+    }
   </style>
 </head>
 <body>
@@ -234,6 +254,8 @@
       <p class="top-preview bulgarian-kursiv">Рецептите на баба Ани</p>
       <p class="top-preview civil-manuscript">Рецептите на баба Ани</p>
       <p class="top-preview karina-cyrillic">Рецептите на баба Ани</p>
+      <p class="top-preview russkopis-normalny">Рецептите на баба Ани</p>
+      <p class="top-preview russkopis-zhirny">Рецептите на баба Ани</p>
     </section>
 
     <section class="showcase" aria-label="Font samples">
@@ -259,6 +281,18 @@
         <span class="font-name">Karina Cyrillic</span>
         <h2 class="sample karina-cyrillic">Селска супа с пресни билки</h2>
         <p class="alphabet karina-cyrillic">Аа Бб Вв Гг Дд Ее Жж Зз Ии Йй Кк Лл Мм Нн Оо Пп Рр Сс Тт Уу Фф Хх Цц Чч Шш Щщ Ъъ Ьь Юю Яя</p>
+      </article>
+
+      <article class="font-card">
+        <span class="font-name">Russkopis Normalny</span>
+        <h2 class="sample russkopis-normalny">Пълнени чушки с ориз</h2>
+        <p class="alphabet russkopis-normalny">Аа Бб Вв Гг Дд Ее Жж Зз Ии Йй Кк Лл Мм Нн Оо Пп Рр Сс Тт Уу Фф Хх Цц Чч Шш Щщ Ъъ Ьь Юю Яя</p>
+      </article>
+
+      <article class="font-card">
+        <span class="font-name">Russkopis Zhirny</span>
+        <h2 class="sample russkopis-zhirny">Козуначени кифлички</h2>
+        <p class="alphabet russkopis-zhirny">Аа Бб Вв Гг Дд Ее Жж Зз Ии Йй Кк Лл Мм Нн Оо Пп Рр Сс Тт Уу Фф Хх Цц Чч Шш Щщ Ъъ Ьь Юю Яя</p>
       </article>
     </section>
   </main>
