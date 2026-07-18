@@ -1,10 +1,7 @@
 'created' timestamp seems very low; regarding as unix timestamp
 'modified' timestamp seems very low; regarding as unix timestamp
-Traceback (most recent call last):
-  File "/home/runner/work/Recipe-book/Recipe-book/tools/repair_web_fonts.py", line 190, in <module>
-    main()
-  File "/home/runner/work/Recipe-book/Recipe-book/tools/repair_web_fonts.py", line 185, in main
-    repair_font(config)
-  File "/home/runner/work/Recipe-book/Recipe-book/tools/repair_web_fonts.py", line 143, in repair_font
-    raise RuntimeError(
-RuntimeError: bulgarian-kursiv.woff2 is missing Bulgarian glyph mappings: АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯабвгдежзийклмнопрстуфхцчшщъьюя
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+Created and validated bulgarian-kursiv.woff2
+Created and validated karina-cyrillic.woff2
+Updated index.html to use repaired WOFF2 files
